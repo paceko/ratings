@@ -2,6 +2,7 @@
 
 from sqlalchemy import func
 from model import User
+import datetime 
 # from model import Rating
 # from model import Movie
 
@@ -36,6 +37,33 @@ def load_users():
 
 def load_movies():
     """Load movies from u.item into database."""
+
+    print "Movies"
+
+    Movie.query.delete()
+
+    for row in open("seed_data/u.item"):
+        row = row.rstrip()
+        movie_id, title, realeased_str, imdb_url = row.split("|")[:4]
+
+        #finding the index of first open parenthesis ( in the title
+        num = title.find("(")
+        #rebinding title to a slice of the title- removing all chars after num
+        title = title[:num-1]
+
+        if realeased_str:
+            realeased_at = datetime.datetime.strptime(realeased_str, "%d-%b-%y")
+        else:
+            realeased_at = None
+
+        
+        movie = Movie(movie_id=movie_id,
+                        title=title,
+                        realeased_at=realeased_at,
+                        imdb_url=imdb_url)
+        db.session.add(movie)
+
+    db.session.commit()
 
 
 def load_ratings():
