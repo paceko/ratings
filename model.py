@@ -26,7 +26,10 @@ class User(db.Model):
     def __repr__(self):
         """Provide helpful reprsentation when printed."""
 
-        return "<User user_id=%s email=%s>" % (self.user_id, self.email)
+        return "<User user_id=%s email=%s age=%s zipcode=%s>" % (self.user_id, 
+                                                                self.email, 
+                                                                self.age, 
+                                                                self.zipcode)
 
 
 # Put your Movie and Rating model classes here.
@@ -51,9 +54,17 @@ class Rating(db.Model):
     __tablename__ = "ratings"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_id = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     score = db.Column(db.Integer, nullable=False)
+
+    #define relationship to the user
+    user = db.relationship("User",
+                            backref=db.backref("ratings", order_by=rating_id))
+
+    #define relationship to the movie
+    movie = db.relationship("Movie", 
+                            backref=db.backref("ratings", order_by=rating_id))
 
     def __repr__(self):
         """Provide helpful representation when printed."""
