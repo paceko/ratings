@@ -3,8 +3,8 @@
 from sqlalchemy import func
 from model import User
 import datetime 
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
 
 from model import connect_to_db, db
 from server import app
@@ -39,36 +39,55 @@ def load_movies():
     """Load movies from u.item into database."""
 
     print "Movies"
-
+    # empties the table (against duplicates)
     Movie.query.delete()
 
     for row in open("seed_data/u.item"):
         row = row.rstrip()
-        movie_id, title, realeased_str, imdb_url = row.split("|")[:4]
+        movie_id, title, released_str, imdb_url = row.split("|")[:4]
 
-        #finding the index of first open parenthesis ( in the title
-        num = title.find("(")
-        #rebinding title to a slice of the title- removing all chars after num
-        title = title[:num-1]
+        #finding the index of first open parenthesis () in the title
+        # num = title.find("(")
 
-        if realeased_str:
-            realeased_at = datetime.datetime.strptime(realeased_str, "%d-%b-%y")
+        # #rebinding title to a slice of the title- removing all chars after num
+        # title = title[:num-1]
+        #removes the last 7 char of the title that have the extra year
+        title = title[:-7]
+
+        if released_str:
+            released_at = datetime.datetime.strptime(released_str, "%d-%b-%Y")
         else:
-            realeased_at = None
+            released_at = None
 
-        
+        #create the object of the class Movie
         movie = Movie(movie_id=movie_id,
                         title=title,
-                        realeased_at=realeased_at,
+                        released_at=released_at,
                         imdb_url=imdb_url)
+        #create an entry for database 
         db.session.add(movie)
-
+        # saves it to database
     db.session.commit()
 
 
 def load_ratings():
     """Load ratings from u.data into database."""
 
+    print "Ratings"
+
+    Rating.query.delete()
+
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        user_id, movie_id, score, timestamp = row.split("\t")
+
+        rating = Rating(user_id=user_id,
+                    movie_id=movie_id,
+                    score=score)
+
+        db.session.add(rating)
+
+    db.session.commit()
 
 def set_val_user_id():
     """Set value for the next user_id after seeding database"""
@@ -79,8 +98,23 @@ def set_val_user_id():
 
     # Set the value for the next user_id to be max_id + 1
     query = "SELECT setval('users_user_id_seq', :new_id)"
+    # SQLAlch. statement that takes two arguments  query and takes 
+    # dictionary (Python) as a value. The key for the dictionary has to
+    # match the value that is entered in the SQL query
+
     db.session.execute(query, {'new_id': max_id + 1})
     db.session.commit()
+
+def set_val_movie_id():
+    """Set value for the next user_id after seeding database"""
+
+    result = db.session.query(func.max(Movie.movie_id)).one()
+    max_id = int(result[0])
+
+    query = "SELECT setval('movies_movie_id_seq', :new_id)"
+    db.session.execute(query, {'new_id': max_id +1})
+    db.session.commit()
+
 
 
 if __name__ == "__main__":
