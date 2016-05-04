@@ -48,12 +48,21 @@ def login():
 
     #if yes log them in. 
     #Checking to see if the email is already in the database
-    user = Users.query.filter_by(email=email).all()
-    
+    user = User.query.filter_by(email=email).first()
+
+
     if user:
         #check if password matched
-        user.password == password
+        if user.password == password:
+            #create the key value pair in the session(= magic dictionary)
+            #(flask's session)
+            session['user_id'] = user.user_id
         #yes, flash you are log in
+            flash("You have been logged in.")
+            return redirect('/')
+        else:
+            flash("Your password was incorrect.")
+            return redirect('/login_page')
         #no, the password didnt match try again
         #re-route them to the sign-in page
     else:
@@ -62,7 +71,17 @@ def login():
         db.session.add(user)
         db.session.commit()
         #log them in
+        flash("yeah you are now signed up. please login.")
+        return redirect('/login_page')
 
+@app.route("/logout")
+def logout():
+    """Logs out user and flashes a logout message"""
+
+    # deletes the key and value in the session dictionary
+    del session['user_id']
+    flash("You have been logged out.")
+    return redirect('/') 
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point

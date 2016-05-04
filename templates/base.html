@@ -6,11 +6,18 @@
 <body>
     Ratings
     <hr>
-    <!-- <ul>
-        {% for message in get_flashed_massages() %}
-            <li>{{ message }}</li>
+    
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+      <li>{{ message }}</li>
         {% endfor %}
-    </ul>  -->
+    </ul>
+    
+    {% endif %}
+    {% endwith %}
+     
 
 
     {% block content %} put your content here {% endblock %}
