@@ -97,6 +97,25 @@ def display_user_details(user_id):
     #passing the user object & list of ratings objects to the template
     return render_template ("user_info.html", user=user, ratings=ratings)
 
+# getting /movies from the link on the homepage.html
+@app.route("/movies")
+def display_movies():
+    """Displays list of movie titles"""
+
+#order by movie title
+    movies = Movie.query.order_by('title').all()
+
+    return render_template ("movie_list.html", movies=movies)
+
+@app.route("/movie/<int:movie_id>")
+def display_movie_details(movie_id):
+    """Displays the details about the movie"""
+
+    movie = Movie.query.filter_by(movie_id=movie_id).one()
+
+    return render_template ("movie_details.html", movie=movie)
+    
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
     # that we invoke the DebugToolbarExtension
