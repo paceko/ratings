@@ -59,7 +59,8 @@ def login():
             session['user_id'] = user.user_id
         #yes, flash you are log in
             flash("You have been logged in.")
-            return redirect('/')
+            location = "/users/"+ str(user.user_id)
+            return redirect(location)
         else:
             flash("Your password was incorrect.")
             return redirect('/login_page')
@@ -82,6 +83,19 @@ def logout():
     del session['user_id']
     flash("You have been logged out.")
     return redirect('/') 
+
+@app.route("/users/<int:user_id>")
+def display_user_details(user_id):
+    """display user details in the movies they have rated"""
+
+    user = User.query.filter_by(user_id=user_id).one()
+    
+    #list of ratings objects that we got from the 
+    #user and ratings relationship in model.py 
+    ratings = user.ratings
+
+    #passing the user object & list of ratings objects to the template
+    return render_template ("user_info.html", user=user, ratings=ratings)
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point

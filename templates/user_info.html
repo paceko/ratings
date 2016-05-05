@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>User Details</h1>
+
+<ul>
+    <li>Age: {{ user.age }}</li>
+    <li>Zipcode: {{ user.zipcode }}</li>
+</ul>
+<ul>
+    {% for rating in ratings %}
+    <!-- accessing the movie title for the ratings via the
+        ratings and movies relationship in model.py -->
+    <li> {{ rating.movie.title }}, rated:{{ rating.score }}</li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
