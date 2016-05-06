@@ -7,7 +7,7 @@
 <h2>{{ movie.title }}</h2>
 
  
-<form action="/rate_movie" method="POST"> 
+<form action="/rate_movie/{{ movie.movie_id }}" method="POST"> 
     <label for= "rate_movie">Rate Movie </label> 
         <select name="rating" id="rate_movie">
             <option value="1">1</option>

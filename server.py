@@ -114,7 +114,41 @@ def display_movie_details(movie_id):
     movie = Movie.query.filter_by(movie_id=movie_id).one()
 
     return render_template ("movie_details.html", movie=movie)
-    
+
+@app.route("/rate_movie/<int:movie_id>", methods=["POST"])
+def rating_movie(movie_id):
+    """Set a rating for a movie"""
+
+    user_id = session.get('user_id')
+    #if user id is none make them sign in
+    if not user_id:
+        #redirect to login page so that user can sign in
+        flash("You have to sign in!")
+        return redirect("/login_page")
+
+    new_score = request.form.get('rating')
+    #check to see if user_id has rated movie_id
+    rating = Rating.query.filter_by(movie_id=movie_id, user_id=user_id).first()
+    #if yes, then update rating score
+    if rating:
+    #take object rating select it attribute score and reassign a new score to it
+        rating.score = new_score
+    #adding object to SQL Alchemy session
+        db.session.add(rating)
+    #saving it to the database
+        db.session.commit()
+        flash("You updated your rating!")
+        return redirect("/movie/" + str(movie_id)) 
+
+    else:    
+    #if no, create a new rating
+        new_rating = Rating(movie_id=movie_id, user_id=user_id, score=new_score)
+        #add to db
+        db.session.add(new_rating)
+        #save to the database
+        db.session.commit()
+        flash("You rated that movie!")
+        return redirect("/movie/" + str(movie_id))
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
